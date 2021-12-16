@@ -181,10 +181,19 @@ class ViewController: UIViewController {
 
   func processObservations(for request: VNRequest, error: Error?) {
     //call show function
+      show(predictions: request.results as! [VNRecognizedObjectObservation])
   }
 
   func show(predictions: [VNRecognizedObjectObservation]) {
    //process the results, call show function in BoundingBoxView
+      guard predictions.isEmpty == false else {
+          return
+      }
+      for i in predictions {
+          let boudingBoxView = BoundingBoxView()
+          boudingBoxView.show(frame: i.boundingBox, label: i.labels[0].identifier, color: colors[i.labels[0].identifier]!)
+      }
+  }
 }
 
 extension ViewController: VideoCaptureDelegate {
