@@ -190,8 +190,15 @@ class ViewController: UIViewController {
           return
       }
       for i in predictions {
-          let boudingBoxView = BoundingBoxView()
-          boudingBoxView.show(frame: i.boundingBox, label: i.labels[0].identifier, color: colors[i.labels[0].identifier]!)
+          if i.labels[0].confidence < 0.9 {
+              return
+          }
+          let boundingBoxView = BoundingBoxView()
+          print(VNImageRectForNormalizedRect(i.boundingBox, CVPixelBufferGetWidth(self.currentBuffer!), CVPixelBufferGetHeight(self.currentBuffer!)))
+          print(i.labels.first!.identifier + "-\(i.labels.first!.confidence * 100)%")
+          boundingBoxView.show(frame: VNImageRectForNormalizedRect(i.boundingBox, CVPixelBufferGetWidth(self.currentBuffer!), CVPixelBufferGetHeight(self.currentBuffer!)), label: i.labels.first!.identifier + "-\(i.labels.first!.confidence * 100)%", color: colors[i.labels.first!.identifier]!)
+          boundingBoxView.addToLayer(self.videoPreview.layer)
+          self.videoPreview.layer.layoutSublayers()
       }
   }
 }
