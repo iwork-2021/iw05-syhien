@@ -28,6 +28,7 @@
 
 import Foundation
 import UIKit
+import QuartzCore
 
 class BoundingBoxView {
     let shapeLayer: CAShapeLayer
@@ -51,6 +52,7 @@ class BoundingBoxView {
     func addToLayer(_ parent: CALayer) {
         parent.addSublayer(shapeLayer)
         parent.addSublayer(textLayer)
+        parent.setNeedsLayout()
     }
     
     func show(frame: CGRect, label: String, color: UIColor) {

@@ -30,6 +30,7 @@ import CoreMedia
 import CoreML
 import UIKit
 import Vision
+import QuartzCore
 
 class ViewController: UIViewController {
     
@@ -181,24 +182,36 @@ class ViewController: UIViewController {
     
     func processObservations(for request: VNRequest, error: Error?) {
         //call show function
-        show(predictions: request.results as! [VNRecognizedObjectObservation])
+        DispatchQueue.main.async {
+            let results = request.results as? [VNRecognizedObjectObservation]
+            if results?.isEmpty == false {
+                self.show(predictions: results!)
+            } else {
+                print("results empty")
+            }
+        }
     }
     
     func show(predictions: [VNRecognizedObjectObservation]) {
         //process the results, call show function in BoundingBoxView
-        guard predictions.isEmpty == false else {
-            return
-        }
-        for i in predictions {
-            if i.labels[0].confidence < 0.9 {
+        for boxViewCount in 0..<boundingBoxViews.count {
+            guard boxViewCount < predictions.count else {
+                boundingBoxViews[boxViewCount].hide()
                 return
             }
-            let boundingBoxView = BoundingBoxView()
-            print(VNImageRectForNormalizedRect(i.boundingBox, CVPixelBufferGetWidth(self.currentBuffer!), CVPixelBufferGetHeight(self.currentBuffer!)))
-            print(i.labels.first!.identifier + "-\(i.labels.first!.confidence * 100)%")
-            boundingBoxView.show(frame: VNImageRectForNormalizedRect(i.boundingBox, CVPixelBufferGetWidth(self.currentBuffer!), CVPixelBufferGetHeight(self.currentBuffer!)), label: i.labels.first!.identifier + "-\(i.labels.first!.confidence * 100)%", color: colors[i.labels.first!.identifier]!)
-            boundingBoxView.addToLayer(self.videoPreview.layer)
-            self.videoPreview.layer.layoutSublayers()
+            
+            let prediction = predictions[boxViewCount]
+            let width = view.bounds.width
+            let height = width * 1280 / 720
+            let offsetY = (view.bounds.height - height) / 2
+            let scale = CGAffineTransform.identity.scaledBy(x: width, y: height)
+            let transform = CGAffineTransform(scaleX: 1, y: -1).translatedBy(x: 0, y: -height - offsetY)
+            let rect = prediction.boundingBox.applying(scale).applying(transform)
+            
+            let label: String = prediction.labels[0].identifier + "\(prediction.labels[0].confidence * 100)%"
+            
+            let color = colors[prediction.labels[0].identifier] ?? UIColor.yellow
+            boundingBoxViews[boxViewCount].show(frame: rect, label: label, color: color)
         }
     }
 }
