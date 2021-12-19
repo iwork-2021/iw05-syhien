@@ -4,6 +4,10 @@
 
 运用CoreML开发一个利用TinyYOLO进行目标检测的iOS App
 
+演示视频：https://www.bilibili.com/video/BV18L411j7DR
+
+数据集：https://box.nju.edu.cn/f/0fde100e73b2405abe1e/?dl=1
+
 ## 模型训练
 
 使用的是同第4次作业的模型。之前我还奇怪训练集为什么还需要有csv文件，不是有图片就够了吗？
